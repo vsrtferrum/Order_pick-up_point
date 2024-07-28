@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package pvz;
+
+option go_package = "gitlab.ozon.dev/berkinv/homework/pkg/grpc/pvz;pvz";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "protoc-gen-openapiv2/options/annotations.proto"; // openapiv2 спецификация
+import "validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+service Pvz{
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
+    description: "PVZ service example"
+    external_docs: {
+      url: "https://github.com/grpc-ecosystem/grpc-gateway?tab=readme-ov-file";
+      description: "Find out more about grpc-gateway";
+    }
+  };
+  rpc AddPackage(AddPackageRequest) returns (google.protobuf.Empty){
+    option(google.api.http) = {
+      post: "/v1/add-package"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      security: {
+        security_requirement: {
+          key: "ApiKeyAuth";
+          value: {}
+        }
+      }
+    };
+  };
+  rpc ReceiveOrderDeliver(RecieveDeliverRequest) returns (google.protobuf.Empty){
+    option(google.api.http) = {
+      delete: "/v1/receive-order-deliver"
+    };
+  };
+  rpc RefundDeliver(RefundDeliverRequest) returns (google.protobuf.Empty){
+
+  };
+  rpc ReceiveOrderUser(ReceiveOrderUserRequest) returns (google.protobuf.Empty){
+    option(google.api.http) = {
+      get: "/v1/receive-order-user"
+
+    };
+  };
+  rpc OrderList(OrderListRequest) returns (OrderListResponse){
+    option(google.api.http) = {
+      get: "/v1/order-list"
+    };
+  };
+  rpc RefundUser(RefundUserRequest) returns (google.protobuf.Empty) {
+    option(google.api.http) = {
+      get: "/v1/refund-user"
+    };
+  };
+  rpc RefundList(RefundListRequest) returns (RefundListResponse){
+
+  };
+  rpc ChangePackage(ChangePackageRequest) returns (google.protobuf.Empty){
+    option(google.api.http) = {
+      get: "/v1/change-package"
+    };
+  };
+}
+message DataUnit{
+  uint32 IdOrder = 1;
+  uint32  IdUser = 2;
+  uint32 IdPackage = 3;
+  google.protobuf.Timestamp DeliveredDate =4;
+  google.protobuf.Timestamp ReceivedDate =5;
+  google.protobuf.Timestamp DeadLine =6;
+  google.protobuf.Timestamp RefundDate =7;
+  uint32 Mass = 8;
+
+}
+message AddPackageRequest{
+  uint32  PackageCost = 1;
+  string PackageName = 2 [(validate.rules).string = {
+    min_len: 2,
+    max_len: 100,
+  }];
+  uint32 LowerMass = 3;
+  uint32 UpperMass = 4 [(validate.rules).uint32.gt = 0];
+}
+message RecieveDeliverRequest{
+  uint32 IdOrder = 1;
+  uint32 IdUser = 2;
+  uint32 IdPackage =  3;
+  int32 Deadline = 4;
+  uint32 Mass = 5;
+}
+message RefundDeliverRequest{
+  uint32 IdOrder = 1;
+}
+message ReceiveOrderUserRequest{
+   repeated uint32 IdOrder = 1;
+}
+message OrderListRequest{
+  uint32 IdUser = 1;
+}
+message OrderListResponse{
+  repeated DataUnit data = 1;
+}
+message RefundUserRequest{
+  uint32 IdOrder = 1;
+  uint32 IdUser = 2;
+}
+message RefundListRequest{
+  uint32 Num =1;
+}
+message RefundListResponse{
+  repeated DataUnit data =1;
+}
+message ChangePackageRequest{
+  uint32 IdOrder = 1;
+  uint32 IdPackage = 2;
+}
